@@ -17,23 +17,37 @@ root.resizable(False, False)
 
 def fix_spelling(text):
     paragraph = text
+    words = paragraph.split()
 
-    misspelled = spell.unknown(paragraph.split())
+    # create an empty list to store the corrected words
+    corrected_words = []
 
-    for word in misspelled:
-        print("Correcting spelling: {}".format(word))
-        paragraph = paragraph.replace(word, spell.correction(word))
+    # loop through each word in the list of words
+    for word in words:
+        # check if the word is misspelled
+        if spell.unknown([word]):
+            # if the word is misspelled, get the corrected version of the word
+            corrected_word = spell.correction(word)
+            # preserve the original capitalization of the word
+            corrected_word = word[0].upper() + corrected_word[1:] if word[0].isupper() else corrected_word
+        else:
+            # if the word is spelled correctly, use the original word
+            corrected_word = word
+        # add the corrected word to the list of corrected words
+        corrected_words.append(corrected_word)
 
-    return paragraph
+    # join the corrected words back into a paragraph
+    corrected_paragraph = ' '.join(corrected_words)
 
+    return corrected_paragraph
 
 
 def process():
     text = inputText.get(0.0, ctk.END)
-    correction = fix_spelling(text)
+    spelling_correction = fix_spelling(text)
     outputText.configure(state="normal")
     outputText.delete(0.0, ctk.END)
-    outputText.insert(0.0, correction)
+    outputText.insert(0.0, spelling_correction)
     outputText.configure(state="disabled")
     inputText.delete(0.0, ctk.END)
 
