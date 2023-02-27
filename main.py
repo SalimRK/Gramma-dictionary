@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import enchant
+from PIL import Image
 
 d = enchant.Dict("en_US")
 
@@ -9,6 +10,7 @@ ctk.set_default_color_theme("green.json")
 # create root window and set name
 root = ctk.CTk()
 root.title("Gramma Dictionary")
+root.minsize(1140, 500)
 root.resizable(False, False)
 
 
@@ -35,12 +37,21 @@ def process():
     inputText.delete(0.0, ctk.END)
 
 
-outputText = ctk.CTkTextbox(root, state="disabled", width=1000, height=500)
-inputText = ctk.CTkTextbox(root, width=900, height=100)
+side_frame = ctk.CTkFrame(root, height=620)
+
+
+GDimage = ctk.CTkImage(dark_image=Image.open("image/Gramma Dictionary.png"), size=(200, 100))
+appImg = ctk.CTkLabel(side_frame, image=GDimage, text="")
+appImg.grid(row=0, column=0, padx=5, pady=5)
+
+
+outputText = ctk.CTkTextbox(root, state="disabled", width=900, height=500)
+inputText = ctk.CTkTextbox(root, width=800, height=100)
 sendButton = ctk.CTkButton(root, text="Process", command=process, width=100, height=50)
 
-outputText.grid(row=0, column=0, columnspan=2, sticky="we")
-inputText.grid(row=2, column=0, sticky="we", padx=10, pady=10)
-sendButton.grid(row=2, column=1, sticky="e", padx=10, pady=10)
+side_frame.grid(row=0, column=0, rowspan=2, sticky="snwe")
+outputText.grid(row=0, column=1, columnspan=2, sticky="we", padx=10, pady=10)
+inputText.grid(row=1, column=1, sticky="we", padx=10, pady=10)
+sendButton.grid(row=1, column=2, sticky="e", padx=10, pady=10)
 
 root.mainloop()
