@@ -2,7 +2,11 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet
 from spellchecker import SpellChecker
-import language_check
+import re
+import string
+from gingerit.gingerit import GingerIt
+
+# import enchant
 
 nltk.download('punkt')
 nltk.download('wordnet')
@@ -54,13 +58,56 @@ def fix_spelling(paragraph):
     return corrected_paragraph
 
 
+# def fix_grammar(paragraph):
+#
+#     # Split the paragraph into words
+#     words = paragraph.split()
+#
+#     # Create a dictionary for English language
+#     d = enchant.Dict("en_US")
+#
+#     # Loop through the words and check for spelling errors
+#     for i in range(len(words)):
+#         if not d.check(words[i]):
+#             suggestions = d.suggest(words[i])
+#             if len(suggestions) > 0:
+#                 words[i] = suggestions[0]
+#
+#     # Join the corrected words back into a sentence
+#     corrected_paragraph = ' '.join(words)
+#
+#     return corrected_paragraph
+
 def fix_grammar(text):
-    tool = language_check.LanguageTool('en-US')
-    matches = tool.check(text)
-    corrected_text = language_check.correct(text, matches)
-    return corrected_text
+    # Initialize grammar checker
+    parser = GingerIt()
 
+    pattern = r"([^\w\s])"
 
-paragraph = "i really want to went to the store but i dont have no money"
-corrected_paragraph = fix_grammar(paragraph)
-print(corrected_paragraph)
+    # split text into sentences
+    sentences = re.split("(?<=[.!?]) +", text)
+
+    # loop through each sentence and correct errors
+    for i, sentence in enumerate(sentences):
+        # check if the sentence contains punctuation marks
+        has_punctuations = bool(re.search(pattern, sentence))
+        # use GingerIt to correct errors
+        result = parser.parse(sentence)
+        if has_punctuations:
+            # if sentence has punctuation marks, include them in the corrected text
+            corrected_sentence = re.sub(pattern, r"\g<1> ", result['result'])
+        else:
+            # otherwise, exclude them
+            corrected_sentence = result['result'].strip()
+        # check if corrections exist in the result
+            if "corrections" in result:
+                # convert list to dictionary
+                corrections = {c['text']: c['correct'] for c in result['corrections']}
+                # loop through each correction and replace the original text with the corrected text
+                for original, correction in corrections.items():
+                    corrected_sentence = corrected_sentence.replace(original, correction)
+            # update the sentences list with the corrected sentence
+            sentences[i] = corrected_sentence
+        # join the sentences back into a paragraph
+        corrected_text = " ".join(sentences)
+        return corrected_text

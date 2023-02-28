@@ -20,11 +20,11 @@ root.resizable(False, False)
 
 def process():
     text = inputText.get(0.0, ctk.END)
-    spelling_correction = fixtext.spellcheck(text)
-    grammer_correction = fixtext.fix_grammar()
+    spelling_correction = fixtext.fix_spelling(text)
+    grammar_correction = fixtext.fix_grammar(spelling_correction)
     outputText.configure(state="normal")
     outputText.delete(0.0, ctk.END)
-    outputText.insert(0.0, spelling_correction)
+    outputText.insert(0.0, grammar_correction)
     outputText.configure(state="disabled")
     inputText.delete(0.0, ctk.END)
 
