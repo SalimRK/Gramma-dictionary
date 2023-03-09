@@ -18,11 +18,9 @@ def switch():
     # switch to light theme
     if dark_theme_is_on:
         ctk.set_appearance_mode("light")
-        print("1")
         dark_theme_is_on = False
     else:
         ctk.set_appearance_mode("dark")
-        print("2")
         dark_theme_is_on = True
 
 
