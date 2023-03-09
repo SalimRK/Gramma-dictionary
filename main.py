@@ -4,12 +4,14 @@ import tkinter as tk
 from spellchecker import SpellChecker
 from PIL import Image
 import pyttsx3
-import multiprocessing
+import threading
 
 spell = SpellChecker()
 
 # set ctk default colors
 ctk.set_default_color_theme("green.json")
+
+
 
 # create root window and set name
 root = ctk.CTk()
@@ -18,10 +20,12 @@ root.iconbitmap("image/GD.ico")
 root.minsize(1140, 500)
 root.resizable(False, False)
 
-voice_var = tk.IntVar()
+# Define TTS engine and voices
+engine = pyttsx3.init()
+voices = engine.getProperty('voices')
 
 
-def process():
+def fix_text():
     text = inputText.get(0.0, ctk.END)
     spelling_correction = fixtext.fix_spelling(text)
     grammar_correction = fixtext.fix_grammar(spelling_correction)
@@ -34,17 +38,20 @@ def process():
 
 def tts(text):
     voice = voice_var.get()
-    engine = pyttsx3.init()  # variables for pyttsx3
-    voices = engine.getProperty('voices')  # variables for pyttsx3
-    engine.setProperty('voice', voices[len(voices) - voice].id)  # variables for pyttsx3 voice 1 for girl 2 for boy
+    engine.setProperty('voice', voices[voice].id)  # set TTS voice
     engine.say(str(text))
     engine.runAndWait()
 
 
+def process():
+    process_thread = threading.Thread(target=fix_text)
+    process_thread.start()
+
+
 def text_to_speech_process():
     text = outputText.get(0.0, ctk.END)
-    tts_p = multiprocessing.Process(target=tts, args=(text))
-    tts_p.start()
+    tts_thread = threading.Thread(target=tts, args=(text,))
+    tts_thread.start()
 
 
 side_frame = ctk.CTkFrame(root, height=620)
@@ -55,8 +62,12 @@ tts_frame = ctk.CTkFrame(side_frame)
 ttsLabel = ctk.CTkLabel(tts_frame, text="Text To Speech Options")
 talkButton = ctk.CTkButton(tts_frame, text="TTS", command=text_to_speech_process)
 
-voiceRadioButtonMale = ctk.CTkRadioButton(tts_frame, text="Male", variable=voice_var, value=3)
-voiceRadioButtonFemale = ctk.CTkRadioButton(tts_frame, text="Female", variable=voice_var, value=1)
+voice_var = tk.IntVar(value=0)
+
+voiceRadioButtonMale = ctk.CTkRadioButton(tts_frame, text="Male", variable=voice_var, value=0,
+                                          command=lambda: engine.setProperty('voice', voices[voice_var.get()].id))
+voiceRadioButtonFemale = ctk.CTkRadioButton(tts_frame, text="Female", variable=voice_var, value=4,
+                                            command=lambda: engine.setProperty('voice', voices[voice_var.get()].id))
 
 outputText = ctk.CTkTextbox(root, state="disabled", width=900, height=500)
 inputText = ctk.CTkTextbox(root, width=800, height=100)
