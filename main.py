@@ -5,14 +5,29 @@ from spellchecker import SpellChecker
 from PIL import Image
 import pyttsx3
 import threading
+import os
 
 spell = SpellChecker()
+cwd = os.getcwd()
+file_path = os.path.join(cwd, "themes")
+
+
+def switch():
+    global dark_theme_is_on
+
+    # switch to light theme
+    if dark_theme_is_on:
+        ctk.set_appearance_mode("light")
+        print("1")
+        dark_theme_is_on = False
+    else:
+        ctk.set_appearance_mode("dark")
+        print("2")
+        dark_theme_is_on = True
+
 
 # set ctk default colors
-ctk.set_default_color_theme("green.json")
-
-
-
+ctk.set_default_color_theme(os.path.join(file_path, "green.json"))
 # create root window and set name
 root = ctk.CTk()
 root.title("Gramma Dictionary")
@@ -23,6 +38,8 @@ root.resizable(False, False)
 # Define TTS engine and voices
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
+
+dark_theme_is_on = True
 
 
 def fix_text():
@@ -69,6 +86,10 @@ voiceRadioButtonMale = ctk.CTkRadioButton(tts_frame, text="Male", variable=voice
 voiceRadioButtonFemale = ctk.CTkRadioButton(tts_frame, text="Female", variable=voice_var, value=4,
                                             command=lambda: engine.setProperty('voice', voices[voice_var.get()].id))
 
+theme_switch_frame = ctk.CTkFrame(side_frame)  # create a frame to hold the theme switch buttons
+theme_label = ctk.CTkLabel(theme_switch_frame, text="Switch to Dark/Light Theme", font=("TkDefaultFont", 12))
+theme_switch = ctk.CTkSwitch(theme_switch_frame, text="Toggle Theme", command=switch)
+
 outputText = ctk.CTkTextbox(root, state="disabled", width=900, height=500)
 inputText = ctk.CTkTextbox(root, width=800, height=100)
 sendButton = ctk.CTkButton(root, text="Process", command=process, width=100, height=50)
@@ -76,6 +97,7 @@ sendButton = ctk.CTkButton(root, text="Process", command=process, width=100, hei
 side_frame.grid(row=0, column=0, rowspan=2, sticky="snwe")
 appImg.grid(row=0, column=0, padx=5, pady=5)
 tts_frame.grid(row=1, column=0)
+theme_switch_frame.grid(row=2, column=0, sticky="we", pady=5)
 
 outputText.grid(row=0, column=1, columnspan=2, sticky="we", padx=10, pady=10)
 inputText.grid(row=1, column=1, sticky="we", padx=10, pady=10)
@@ -85,5 +107,10 @@ ttsLabel.grid(row=0, column=0, padx=10, pady=10, columnspan=2)
 talkButton.grid(row=1, column=0, padx=10, pady=10, columnspan=2)
 voiceRadioButtonMale.grid(row=2, column=0, padx=10, pady=10)
 voiceRadioButtonFemale.grid(row=2, column=1, padx=10, pady=10)
+
+# add the theme switch buttons to the frame
+ttsLabel.grid(row=0, column=0, padx=10, pady=10, columnspan=2)
+theme_label.grid(row=0, column=0, padx=10, pady=10)
+theme_switch.grid(row=1, column=0, padx=10, pady=10)
 
 root.mainloop()
