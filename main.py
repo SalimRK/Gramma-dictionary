@@ -90,7 +90,6 @@ def plagiarism_Checker():
         with open(os.path.abspath('output.html'), 'w') as f:
             f.write(highlighted_text)
         webbrowser.open('file://' + os.path.abspath('output.html'))
-    print(highlighted_text)
 
     threading.Thread(target=write_and_open_html).start()
 
