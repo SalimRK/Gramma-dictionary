@@ -6,6 +6,10 @@ from PIL import Image
 import pyttsx3
 import threading
 import os
+import difflib
+import re
+import webbrowser
+
 
 spell = SpellChecker()
 cwd = os.getcwd()
@@ -69,6 +73,33 @@ def text_to_speech_process():
     tts_thread.start()
 
 
+def plagiarism_Checker():
+    text = outputText.get(0.0, ctk.END)
+    pattern = r'\w+'
+    words = re.findall(pattern, text)
+    highlighted_text = text
+    for i in range(len(words)):
+        for j in range(i + 1, len(words)):
+            similarity_ratio = difflib.SequenceMatcher(None, words[i], words[j]).ratio()
+            if similarity_ratio >= 0.8:
+                highlighted_text = highlighted_text.replace(words[i], '<span style="color:red">' + words[i] + '</span>')
+                highlighted_text = highlighted_text.replace(words[j], '<span style="color:red">' + words[j] + '</span>')
+
+    # write the highlighted text to an HTML file and open it in a web browser
+    def write_and_open_html():
+        with open(os.path.abspath('output.html'), 'w') as f:
+            f.write(highlighted_text)
+        webbrowser.open('file://' + os.path.abspath('output.html'))
+    print(highlighted_text)
+
+    threading.Thread(target=write_and_open_html).start()
+
+
+def detect_plagiarism_process():
+    detect_plagiarism_process_thread = threading.Thread(target=plagiarism_Checker)
+    detect_plagiarism_process_thread.start()
+
+
 side_frame = ctk.CTkFrame(root, height=620)
 GDimage = ctk.CTkImage(dark_image=Image.open("image/Gramma Dictionary.png"), size=(200, 100))
 appImg = ctk.CTkLabel(side_frame, image=GDimage, text="")
@@ -92,23 +123,31 @@ outputText = ctk.CTkTextbox(root, state="disabled", width=900, height=500)
 inputText = ctk.CTkTextbox(root, width=800, height=100)
 sendButton = ctk.CTkButton(root, text="Process", command=process, width=100, height=50)
 
-side_frame.grid(row=0, column=0, rowspan=2, sticky="snwe")
-appImg.grid(row=0, column=0, padx=5, pady=5)
-tts_frame.grid(row=1, column=0)
-theme_switch_frame.grid(row=2, column=0, sticky="we", pady=5)
-
 outputText.grid(row=0, column=1, columnspan=2, sticky="we", padx=10, pady=10)
 inputText.grid(row=1, column=1, sticky="we", padx=10, pady=10)
 sendButton.grid(row=1, column=2, sticky="e", padx=10, pady=10)
 
+plagiarism_frame = ctk.CTkFrame(side_frame)
+plagiarismButton = ctk.CTkButton(plagiarism_frame, text="detect plagiarism", command=detect_plagiarism_process)
+
+# side frame
+side_frame.grid(row=0, column=0, rowspan=2, sticky="snwe")
+appImg.grid(row=0, column=0, padx=5, pady=5)
+
+# text to speach
+tts_frame.grid(row=1, column=0)
 ttsLabel.grid(row=0, column=0, padx=10, pady=10, columnspan=2)
 talkButton.grid(row=1, column=0, padx=10, pady=10, columnspan=2)
 voiceRadioButtonMale.grid(row=2, column=0, padx=10, pady=10)
 voiceRadioButtonFemale.grid(row=2, column=1, padx=10, pady=10)
 
 # add the theme switch buttons to the frame
-ttsLabel.grid(row=0, column=0, padx=10, pady=10, columnspan=2)
+theme_switch_frame.grid(row=2, column=0, sticky="we", pady=5)
 theme_label.grid(row=0, column=0, padx=10, pady=10)
 theme_switch.grid(row=1, column=0, padx=10, pady=10)
+
+# plagiarism
+plagiarism_frame.grid(row=3, column=0, sticky="we")
+plagiarismButton.grid(row=0, column=0, padx=50, pady=10)
 
 root.mainloop()
