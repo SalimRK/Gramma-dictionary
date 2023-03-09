@@ -1,9 +1,10 @@
-import tkinter
 import fixtext
 import customtkinter as ctk
-from tkinter import *
+import tkinter as tk
 from spellchecker import SpellChecker
 from PIL import Image
+import pyttsx3
+import multiprocessing
 
 spell = SpellChecker()
 
@@ -17,6 +18,8 @@ root.iconbitmap("image/GD.ico")
 root.minsize(1140, 500)
 root.resizable(False, False)
 
+voice_var = tk.IntVar()
+
 
 def process():
     text = inputText.get(0.0, ctk.END)
@@ -29,9 +32,19 @@ def process():
     inputText.delete(0.0, ctk.END)
 
 
-def text_to_speech():
+def tts(text):
+    voice = voice_var.get()
+    engine = pyttsx3.init()  # variables for pyttsx3
+    voices = engine.getProperty('voices')  # variables for pyttsx3
+    engine.setProperty('voice', voices[len(voices) - voice].id)  # variables for pyttsx3 voice 1 for girl 2 for boy
+    engine.say(str(text))
+    engine.runAndWait()
+
+
+def text_to_speech_process():
     text = outputText.get(0.0, ctk.END)
-    print(text)
+    tts_p = multiprocessing.Process(target=tts, args=(text))
+    tts_p.start()
 
 
 side_frame = ctk.CTkFrame(root, height=620)
@@ -40,10 +53,10 @@ appImg = ctk.CTkLabel(side_frame, image=GDimage, text="")
 tts_frame = ctk.CTkFrame(side_frame)
 
 ttsLabel = ctk.CTkLabel(tts_frame, text="Text To Speech Options")
-talkButton = ctk.CTkButton(tts_frame, text="TTS", command=text_to_speech)
+talkButton = ctk.CTkButton(tts_frame, text="TTS", command=text_to_speech_process)
 
-voiceRadioButtonMale = ctk.CTkRadioButton(tts_frame, text="Male", value=0)
-voiceRadioButtonFemale = ctk.CTkRadioButton(tts_frame, text="Female", value=1)
+voiceRadioButtonMale = ctk.CTkRadioButton(tts_frame, text="Male", variable=voice_var, value=3)
+voiceRadioButtonFemale = ctk.CTkRadioButton(tts_frame, text="Female", variable=voice_var, value=1)
 
 outputText = ctk.CTkTextbox(root, state="disabled", width=900, height=500)
 inputText = ctk.CTkTextbox(root, width=800, height=100)
