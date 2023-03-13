@@ -10,7 +10,6 @@ import difflib
 import re
 import webbrowser
 
-
 spell = SpellChecker()
 cwd = os.getcwd()
 file_path = os.path.join(cwd, "themes")
@@ -73,6 +72,27 @@ def text_to_speech_process():
     tts_thread.start()
 
 
+def open_about_window():
+    about_window = ctk.CTkToplevel(root)
+    about_window.title("About")
+    about_window.iconbitmap("image/GD.ico")
+    about_window.geometry("700x300")
+    about_window.resizable(False, False)
+    text = """Welcome to Gramma Dictionary, your all-in-one tool for improving your writing!
+
+At Gramma Dictionary, I understand the importance of clear and effective communication. That's why I've created an application that helps you fix spelling and grammar mistakes, as well as enhance the readability and engagement of your text.
+
+My application is designed to be user-friendly and accessible, with features such as text-to-speech and dark/light mode that make it easy to use in any setting.
+
+But that's not all – I also take plagiarism seriously. With my advanced plagiarism detection technology, you can ensure that your writing is original and free from any instances of academic dishonesty.
+
+Whether you're a student, a professional writer, or just someone looking to improve your communication skills, Gramma Dictionary is the perfect tool for you. Try it out today and experience the power of clear and effective writing!"""
+    about_label = ctk.CTkTextbox(about_window, width=680, height=280)
+    about_label.grid(row=0, column=0, padx=10, pady=10)
+
+    about_label.insert(ctk.END, text)
+
+
 def plagiarism_Checker():
     text = outputText.get(0.0, ctk.END)
     pattern = r'\w+'
@@ -129,6 +149,9 @@ sendButton.grid(row=1, column=2, sticky="e", padx=10, pady=10)
 plagiarism_frame = ctk.CTkFrame(side_frame)
 plagiarismButton = ctk.CTkButton(plagiarism_frame, text="detect plagiarism", command=detect_plagiarism_process)
 
+about_frame = ctk.CTkFrame(side_frame)
+about_button = ctk.CTkButton(about_frame, text="About Us", command=open_about_window)
+
 # side frame
 side_frame.grid(row=0, column=0, rowspan=2, sticky="snwe")
 appImg.grid(row=0, column=0, padx=5, pady=5)
@@ -148,5 +171,9 @@ theme_switch.grid(row=1, column=0, padx=10, pady=10)
 # plagiarism
 plagiarism_frame.grid(row=3, column=0, sticky="we")
 plagiarismButton.grid(row=0, column=0, padx=50, pady=10)
+
+# about
+about_frame.grid(row=4, column=0, sticky="we", pady=5)
+about_button.grid(row=0, column=0, padx=50, pady=10)
 
 root.mainloop()
